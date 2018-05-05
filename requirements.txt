@@ -1,1 +1,4 @@
+nltk
 argparse
+nltk.corpus
+operator
