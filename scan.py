@@ -5,68 +5,73 @@ import operator
 from string import punctuation
 from collections import defaultdict
 
+class Scan:
 
-def frequency(textTokens, rejectExtremeValues=True):
-	
-	freqDict = defaultdict(float)
-	
-	for line in textTokens:
-		for w in line:
-			if w not in set(nltk.corpus.stopwords.words('english')+list(punctuation)):
-				freqDict[w]+=1
-
-	if rejectExtremeValues:
-		maximum = float(max(freqDict.values()))
+	def __init__(self, filename):
+		f = open(filename, 'r')
 		
-		for (w, v) in freqDict.items():
-			freqDict[w] = v / maximum
-			if freqDict[w] >= 0.85 or freqDict[w] <= 0.15:
-				freqDict[w] = v - 1 
-
-	return freqDict
-
-
-def calculateProb(fDict, textTokens, num, ):
+		string = f.read()
+		string = string.replace('\n', "")
+		
+		self.text = string
 	
-	sentenceRank = defaultdict(float)
 	
-	for sentence in textTokens:
-		s = " ".join(sentence)
-		for word in sentence:
-			if word in fDict:
-				sentenceRank[s] += fDict[word]
+	def frequency_dict(self, reject_extreme_values=True):
+		self.freq_dict = defaultdict(float)
+		
+		for line in self.text_tokens:
+			for w in line:
+				if w not in set(nltk.corpus.stopwords.words('english')+list(punctuation)):
+					self.freq_dict[w]+=1
 
-	summaryLines=[]
-
-	for i in range(0, num):
-		if len(sentenceRank)!=0:
-			s = max( sentenceRank.items(), key = operator.itemgetter(1))[0]
+		if reject_extreme_values:
+			maximum = float(max(self.freq_dict.values()))
 			
-			summaryLines.append(s)
-			del sentenceRank[s]
+			for (w, v) in self.freq_dict.items():
+				self.freq_dict[w] = v / maximum
+				if self.freq_dict[w] >= 0.85 or self.freq_dict[w] <= 0.15:
+					self.freq_dict[w] = v - 1 
 
-	return summaryLines
+
+	def sentence_rank(self, num):
+		summary_lines=[]
+		sentence_rank = defaultdict(float)
+		
+		for sentence in self.text_tokens:
+			s = " ".join(sentence)
+
+			for word in sentence:
+				if word in self.freq_dict:
+					sentence_rank[s] += self.freq_dict[word]
+		
+		for (w,v) in sentence_rank.items():
+			sentence_rank[w] = v / len(w)
+
+		for i in range(0, num):
+			if len(sentence_rank)!=0:
+				s = max( sentence_rank.items(), key = operator.itemgetter(1))[0]	
+				summary_lines.append(s)
+
+				del sentence_rank[s]
+
+		return summary_lines
 
 
-def summary(text, num):
-	"""takes input as text and n in which summary of text
-	 should be represented"""
-	
-	sentenceTokens = nltk.sent_tokenize(text)
-	
-	textTokens=[]
-	for tok in sentenceTokens:
-		textTokens.append(nltk.word_tokenize(tok.lower())) 
+	def calculate_summary(self, num):
+		sentence_tokens = nltk.sent_tokenize(self.text)
+		
+		self.text_tokens=[]
+		for tok in sentence_tokens:
+			self.text_tokens.append( nltk.word_tokenize(tok.lower()) ) 
 
-	fDict = frequency(textTokens, False)
+		self.frequency_dict()
+		summary = self.sentence_rank(num)
 
-	summary = calculateProb(fDict, textTokens, num)
-
-	return summary	
+		return summary	
 
 
 if __name__=="__main__":
-	
+
 	parser = argparse.ArgumentParser(description='TextScan: Scan Text, one file at a time')
 
 	parser.add_argument("filename", help='Enter the filename')
@@ -76,11 +81,7 @@ if __name__=="__main__":
 	args = parser.parse_args()
 
 	if args.summarize:
-		
-		f = open(args.filename, 'r')
-		text = f.read()
+		scan = Scan(args.filename)
+		summary_list = scan.calculate_summary(args.number)
 
-		text = text.replace('\n', "")
-		summ = summary(text, args.number)
-
-		print(summ)
+		print(summary_list)
