@@ -11,7 +11,7 @@ class Scan:
 		f = open(filename, 'r')
 		
 		string = f.read()
-		string = string.replace('\n', "")
+		string = string.replace('\n', ". ")
 		
 		self.text = string
 	
@@ -74,8 +74,10 @@ if __name__=="__main__":
 
 	parser = argparse.ArgumentParser(description='TextScan: Scan Text, one file at a time')
 
+	group = parser.add_mutually_exclusive_group(required=True)
 	parser.add_argument("filename", help='Enter the filename')
-	parser.add_argument("-s", "--summarize", help="Summarize the text", action="store_true")
+	group.add_argument("-s", "--summarize", help="Summarize the text", action="store_true")
+	group.add_argument("-a", "--analyse", help="Analyse the text", action="store_true")
 	parser.add_argument("-n", "--number", help="Number of lines", type = int, required=True)
 
 	args = parser.parse_args()
@@ -84,4 +86,5 @@ if __name__=="__main__":
 		scan = Scan(args.filename)
 		summary_list = scan.calculate_summary(args.number)
 
-		print(summary_list)
+		for i in summary_list:
+			print(i[:-1])
