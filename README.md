@@ -6,8 +6,8 @@ Summarise or analyse files, one file at a time.
 ### Terminal Usage
 
 ```console
-gavy42@jarvis:~/Desktop/github/TextScan$ python3 scan.py -h
-usage: scan.py [-h] [-s] -n NUMBER filename
+gavy42@jarvis:~/TextScan$ python3 scan.py -h
+usage: scan.py [-h] (-s | -a) -n NUMBER filename
 
 TextScan: Scan Text, one file at a time
 
@@ -17,16 +17,16 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   -s, --summarize       Summarize the text
+  -a, --analyse         Analyse the text
   -n NUMBER, --number NUMBER
-                        Number of lines 
+                        Number of lines
 ```
 
 ### Interpreter Usage
 
 ```python3
 >>> from scan import Scan
->>> s = Scan('data.txt')
->>> s
+>>> Scan('data.txt')
 <scan.Scan object at 0x7f64a9b77f28> 
 ```
 
